@@ -38,17 +38,11 @@ jobs:
 
           profdata=$(find Build/Build/ProfileData -name Coverage.profdata -print -quit)
           binary="Build/Build/Products/Debug-iphonesimulator/ContextMenu.framework/ContextMenu"
-          source_args=()
-
-          while IFS= read -r source; do
-            source_args+=("-sources" "$source")
-          done < <(find Sources -name "*.swift" -print)
 
           xcrun llvm-cov export \
             -format=lcov \
             -instr-profile "$profdata" \
-            "$binary" \
-            "${source_args[@]}" > coverage.lcov
+            "$binary" > coverage.lcov
 
           ! grep -Ev "^SF:(.*/)?Sources/" coverage.lcov | grep "^SF:"
       - name: Codecov
