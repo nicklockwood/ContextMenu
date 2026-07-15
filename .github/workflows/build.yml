@@ -24,6 +24,15 @@ jobs:
             -scheme ContextMenuExample \
             -destination "generic/platform=iOS Simulator" \
             -derivedDataPath Build
+      - name: Build Example for Mac Catalyst
+        run: |
+          xcodebuild build \
+            -project ContextMenu.xcodeproj \
+            -scheme ContextMenuExample \
+            -destination "platform=macOS,arch=x86_64,variant=Mac Catalyst" \
+            -derivedDataPath Build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
       - name: Test
         run: |
           xcodebuild test \

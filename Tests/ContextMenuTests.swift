@@ -10,12 +10,15 @@ final class ContextMenuTests: XCTestCase {
         view.addInteraction(interaction)
 
         XCTAssertTrue(interaction.view === view)
-        XCTAssertEqual(view.gestureRecognizers?.count, 1)
+        let addedGestures = view.gestureRecognizers ?? []
+        XCTAssertTrue(addedGestures.contains { $0 is UILongPressGestureRecognizer })
 
         view.removeInteraction(interaction)
 
         XCTAssertNil(interaction.view)
-        XCTAssertTrue(view.gestureRecognizers?.isEmpty ?? true)
+        for gesture in addedGestures {
+            XCTAssertFalse(view.gestureRecognizers?.contains { $0 === gesture } ?? false)
+        }
     }
 
     func testMenuProviderReceivesRequestedLocation() {

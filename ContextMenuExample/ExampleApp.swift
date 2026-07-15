@@ -18,10 +18,22 @@ struct ExampleApp: App {
     }
 }
 
+private var runningOnMac: Bool {
+    #if targetEnvironment(macCatalyst)
+    true
+    #else
+    ProcessInfo.processInfo.isiOSAppOnMac
+    #endif
+}
+
+private var contextMenuGestureName: String {
+    runningOnMac ? "Right-click" : "Long press"
+}
+
 struct ContentView: View {
     @State private var color = UIColor.systemTeal
     @State private var symbolName = "doc.text.image"
-    @State private var copiedText = "Long press anywhere on the content"
+    @State private var copiedText = "\(contextMenuGestureName) anywhere on the content"
 
     var body: some View {
         TabView {
@@ -73,13 +85,24 @@ private enum MenuDemoMode: CaseIterable, Identifiable {
     }
 
     var detail: String {
-        switch self {
-        case .contextMenu:
-            "Uses UIContextMenuInteraction directly. The delegate receives the press location, but UIKit presents a context menu for the view."
-        case .editMenu:
-            "Uses UIEditMenuInteraction directly. It presents from a source point, using the edit-menu presentation style."
-        case .anchoredMenu:
-            "Uses ContextMenuInteraction. On iOS 17.4 and later it opens a dropdown-style menu at the press location."
+        if runningOnMac {
+            switch self {
+            case .contextMenu:
+                "Uses UIContextMenuInteraction."
+            case .editMenu:
+                "Uses UIEditMenuInteraction."
+            case .anchoredMenu:
+                "Uses ContextMenuInteraction."
+            }
+        } else {
+            switch self {
+            case .contextMenu:
+                "Uses UIContextMenuInteraction directly. The delegate receives the press location, but UIKit presents a context menu for the view."
+            case .editMenu:
+                "Uses UIEditMenuInteraction directly. It presents from a source point, using the edit-menu presentation style."
+            case .anchoredMenu:
+                "Uses ContextMenuInteraction. On iOS 17.4 and later it opens a dropdown-style menu at the press location."
+            }
         }
     }
 }
@@ -268,7 +291,7 @@ final class ContentCardView: UIView {
         backgroundColor = color
         imageView.image = UIImage(systemName: symbolName)
         detailLabel.text = detail
-        hintLabel.text = "Long press anywhere"
+        hintLabel.text = "\(contextMenuGestureName) anywhere"
     }
 
     func configureUnsupportedMode() {
@@ -297,7 +320,7 @@ final class ContentCardView: UIView {
         detailLabel.numberOfLines = 0
         detailLabel.textAlignment = .center
 
-        hintLabel.text = "Long press anywhere"
+        hintLabel.text = "\(contextMenuGestureName) anywhere"
         hintLabel.textColor = UIColor.white.withAlphaComponent(0.72)
         hintLabel.font = .preferredFont(forTextStyle: .caption1)
         hintLabel.adjustsFontForContentSizeCategory = true

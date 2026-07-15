@@ -67,6 +67,11 @@ public final class ContextMenuInteraction: NSObject, UIInteraction {
             return
         }
         attachedView = view
+
+        if runningOnMac, #available(iOS 16, *) {
+            _ = editMenuInteraction(for: view)
+        }
+
         let gesture = UILongPressGestureRecognizer(
             target: self,
             action: #selector(handleLongPress(_:))
@@ -95,11 +100,19 @@ public final class ContextMenuInteraction: NSObject, UIInteraction {
 
         cleanupButton()
 
-        if #available(iOS 17.4, *), configuration.presentationStyle == .automatic {
+        if #available(iOS 17.4, *), !runningOnMac, configuration.presentationStyle == .automatic {
             presentContextMenu(configuration.menu, at: location, in: view)
         } else if #available(iOS 16, *) {
             presentEditMenu(at: location, in: view)
         }
+    }
+
+    private var runningOnMac: Bool {
+        #if targetEnvironment(macCatalyst)
+        true
+        #else
+        ProcessInfo.processInfo.isiOSAppOnMac
+        #endif
     }
 
     @available(iOS 17.4, *)
